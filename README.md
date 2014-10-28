@@ -1,7 +1,7 @@
 AutoKey-profile-switcher
 ========================
 
-Script for switching "profiles" (folders) for AutoKey. It works by changing the autokey folder link to different one.  
+Script for switching "profiles" (=folders) for AutoKey. It works by changing the autokey folder link to different one.  
 It doesn't remove original autokey folder if it's not a link.  
 Before changing anything, AutoKey is stopped and at the end run again.  
 It works for my system - Linux Mint 17 and AutoKey 0.90.4, it may require some tinkering if you have different os.
@@ -13,12 +13,12 @@ Installing
   ```
   ln -s /path/to/aks.sh /usr/local/bin/aks
   ```
-2. Create new folder where you will keep your AutoKey "profiles" and put the path in the script as variable AK_SCRIPT_FOLDER
+2. Create new folder where you will keep your AutoKey profiles and put the path in the script as variable AK_SCRIPT_FOLDER
 3. Change the variable AK_DEFAULT_FOLDER to your default autokey folder e.g. ~/.config/autokey
 4. Move your default autokey folder to the AK_SCRIPT_FOLDER e.g:
 
   ```
-  mv ~./config/autokey ~/path/default
+  mv ~/.config/autokey ~/path/default
   ```
 
 Running AutoKey with new profile
