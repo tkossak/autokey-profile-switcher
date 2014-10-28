@@ -8,7 +8,7 @@ It works for my system - Linux Mint 17 and AutoKey 0.90.4, it may require some t
 
 Installing
 ---
-1. Download aks.sh anywhere and create a link somwhere in your PATH e.g.
+1. Download aks.sh anywhere and create a link somewhere in your PATH e.g.
 
   ```
   ln -s /path/to/aks.sh /usr/local/bin/aks
