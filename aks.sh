@@ -1,8 +1,24 @@
 #!/bin/bash
 
-AK_DEFAULT_FOLDER=/home/kossak/.config/autokey
-AK_SCRIPT_FOLDER=/home/kossak/Dropbox/Private/Linux/AutoKey_scripts
-NEW_PROFILE=${1:?No profile given}
+AK_DEFAULT_FOLDER=~/.config/autokey
+AK_SCRIPT_FOLDER=~/Dropbox/Private/Linux/AutoKey_scripts
+NEW_PROFILE=$1
+
+if [[ $# = 0 ]]; then
+    echo 'Usage:
+aks [ OPTIONS | PROFILE_NAME ]
+
+OPTIONS:
+-l | --list  - list available profiles
+'
+exit
+fi
+
+
+if [[ $1 = '-l' || $1 = '--list' ]]; then
+    ls ${AK_SCRIPT_FOLDER}
+    exit
+fi
 
 if [[ ! -d ${AK_SCRIPT_FOLDER}/${NEW_PROFILE} ]]; then
   echo Error: Profile doesn\'t exist > /dev/stderr
