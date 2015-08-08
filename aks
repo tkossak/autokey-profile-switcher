@@ -1,0 +1,274 @@
+#!/usr/bin/env bash
+
+# You can set these variables manually:
+# Where AutoKey keeps it's main directory with all the scripts:
+__AK_DEFAULT_FOLDER="${HOME}/.config/autokey"
+# Where AKS keeps all the profiles: (if empty it will be set to GIT_REPOSITORY/profiles)
+__AKS_PROFILES_FOLDER=""
+# AKS default profile, used as a base for creating new profiles: (if empty it will be set to ${__AKS_PROFILES_FOLDER}/__default)
+__AKS_DEFAULT_PROFILE=""
+
+
+set -o errexit
+set -o pipefail
+set -o nounset
+# set -o xtrace
+
+# -------------------------------------------------------------------------------
+# GLOBAL VARS/CONSTANTS
+
+__base="$(basename "${BASH_SOURCE[0]}")"
+__sfile="$(readlink -f ${BASH_SOURCE[0]})"
+__sdir="$(cd "$(dirname "${__sfile}")" && pwd)"
+
+
+# check folder variables:
+if [[ -z "${__AKS_PROFILES_FOLDER}" ]]; then
+    if [[ -d "${HOME}/Dropbox/Private/Linux/AutoKey_scripts" ]]; then
+        __AKS_PROFILES_FOLDER="${HOME}/Dropbox/Private/Linux/AutoKey_scripts"
+    else
+        __AKS_PROFILES_FOLDER="${__sdir}/profiles"
+    fi
+fi
+
+if [[ -z "${__AKS_DEFAULT_PROFILE}" ]]; then
+    __AKS_DEFAULT_PROFILE="${__AKS_PROFILES_FOLDER}/__default"
+fi
+
+# -------------------------------------------------------------------------------
+# PRINT_HELP()
+print_help()
+{
+    echo "${__base} - change AutoKey profiles"
+    echo "Usage:"
+    echo "  ${__base} [OPTIONS] [PROFILE_NAME]"
+    echo
+    echo "OPTIONS:"
+    echo "  -h | --help : print this help"
+    echo "  --install   : install AKS (create profile from current AutoKey folder, replace it with link)"
+    echo "  -l          : list available profiles"
+    echo "  -c <NAME>   : create new profile from default one"
+    echo "  -r <NAME>   : remove profile"
+    echo "  -k          : kill AutoKey process"
+    echo "  -p          : print profiles directory path"
+    return 0
+}
+
+if [[ $# = 0 ]]; then
+    print_help
+    exit 0
+fi
+
+# --------------------------------------------------------------------------------
+# check variables
+    if [[ ! -d "${__AK_DEFAULT_FOLDER}" ]]; then
+        echo "AutoKey folder does not exists: ${__AK_DEFAULT_FOLDER}" > /dev/stderr
+        echo "Is AutoKey installed? If so update script with correct path and try again." > /dev/stderr
+        exit 1
+    elif [[ ! -d "${__AKS_PROFILES_FOLDER}" ]]; then
+        echo "AKS profile folder does not exist: ${__AKS_PROFILES_FOLDER}" > /dev/stderr
+        echo "Update script with correct path and try again." > /dev/stderr
+        exit 1
+    elif [[ ! -d "${__AKS_DEFAULT_PROFILE}" ]]; then
+        echo "AKS default profile folder does not exist: ${__AKS_DEFAULT_PROFILE}" > /dev/stderr
+        echo "Update script with correct path and try again." > /dev/stderr
+        exit 1
+    elif [[ "${1:-}" != "--install" && ! -L "${__AK_DEFAULT_FOLDER}" ]]; then
+        echo "AutoKey folder is not a link. Run \"aks --install\" to change it into aks profile and create link to it." > /dev/stderr
+        exit 1
+    fi
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# switch_profile()
+#   $1 = profile name to switch
+switch_profile()
+{
+    local NEW_PROFILE="${1:-}"
+    local NEW_PROFILE_PATH="${__AKS_PROFILES_FOLDER}/${NEW_PROFILE}"
+
+    # check if profile exists
+    if [[ -z "${NEW_PROFILE}" || ! -d "${NEW_PROFILE_PATH}" ]]; then
+        echo "Error: Profile doesn\'t exist: ${NEW_PROFILE} in ${__AKS_PROFILES_FOLDER}" > /dev/stderr
+        exit 1
+    fi
+
+    # check if autokey folder is link:
+    if [[ -d "${__AK_DEFAULT_FOLDER}" && ! -L "${__AK_DEFAULT_FOLDER}" ]]; then
+        echo "Error: autokey is normal folder - save it in scripts folder and remove the orginal one (${__AK_DEFAULT_FOLDER})" > /dev/stderr
+        exit 1
+    fi
+
+    kill_autokey
+
+    # remove autokey folder (link)
+    [[ -L "${__AK_DEFAULT_FOLDER}" ]] && rm "${__AK_DEFAULT_FOLDER}"
+
+    ln -s "${NEW_PROFILE_PATH}" "${__AK_DEFAULT_FOLDER}"
+    echo "$(readlink -f ""${__AK_DEFAULT_FOLDER}"")"
+
+    nohup autokey-gtk >/dev/null 2>&1 &
+
+    return 0
+}
+
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+kill_autokey()
+{
+    local autokey_name="autokey-gtk"
+
+    if pgrep "${autokey_name}" > /dev/null; then
+        pkill -15 "${autokey_name}"
+        while [[ -n $(pgrep "${autokey_name}") ]]; do
+            sleep 0.2
+        done
+    fi
+
+    return 0
+}
+
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# create_profile <PROFILE_NAME>
+create_profile()
+{
+    local NEW_PROFILE_PATH=""
+
+    if [[ $# = 0 ]]; then
+        echo "No profile name given" >> /dev/stderr
+        return 1
+    fi
+
+    while [[ $# > 0 ]]; do
+        case $1 in
+            *)
+                if [[ -z "${NEW_PROFILE_PATH}" ]]; then
+                    NEW_PROFILE_PATH="${__AKS_PROFILES_FOLDER}/${1}"
+                    shift
+                else
+                    echo "Unknown uption: $1" > /dev/stderr
+                    return 1
+                fi
+                ;;
+        esac
+    done
+
+    if [[ -d "${NEW_PROFILE_PATH}" ]]; then
+        echo "Profile already exists ${NEW_PROFILE_PATH}" > /dev/stderr
+        return 1
+    else
+        cp -r "${__AKS_DEFAULT_PROFILE}" "${NEW_PROFILE_PATH}"
+    fi
+
+    return 0
+}
+
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------
+# remove_profile <PROFILE_NAME>
+remove_profile()
+{
+    local PROFILE_PATH=""
+
+    while [[ $# > 0 ]]; do
+        case $1 in
+            *)
+                if [[ "${1}" == "__default" ]]; then
+                    echo "You can't remove default profile." > /dev/stderr
+                    return 1
+                elif [[ -n "${1}" && -z "${PROFILE_PATH}" ]]; then
+                    PROFILE_PATH="${__AKS_PROFILES_FOLDER}/${1}"
+                    shift
+                else
+                    echo "Unknown uption: $1" > /dev/stderr
+                    return 1
+                fi
+                ;;
+        esac
+    done
+
+    if [[ ! -d "${PROFILE_PATH}" ]]; then
+        echo "Profile does not exist: ${PROFILE_PATH}" >> /dev/stderr
+        return 1
+    else 
+        rm -r "${PROFILE_PATH}" || echo "Problem deleting profile: ${PROFILE_PATH}" > /dev/stderr
+    fi
+
+    return 0
+}
+
+# ================================================================================
+# ================================================================================
+# ================================================================================
+# MAIN SCRIPT
+__switch_to_profile=""
+
+while [[ $# > 0 ]]; do
+    case "$1" in
+        --install)
+            orig_folder="${__AKS_PROFILES_FOLDER}/original"
+            if [[ -d "${orig_folder}" ]]; then
+                echo "Original folder alrady exists. Delete it and run again: ${orig_folder}" > /dev/stderr
+                exit 1
+            else
+                tmp="$(readlink -f ${__AK_DEFAULT_FOLDER})"
+                mv "${__AK_DEFAULT_FOLDER}" -T "${orig_folder}" && switch_profile original && echo "Profile \"original\" created." || echo "Errors creating \"original\" profile."
+            fi
+            exit 0
+            ;;
+        -h|--help)
+            print_help
+            exit
+            ;;
+        -l)
+            tmp="${__AKS_PROFILES_FOLDER//\//\\\/}"
+            find "${__AKS_PROFILES_FOLDER}" -maxdepth 1 -type d | sed -e '/^'"${tmp}"'$/d' -e "s/${tmp}\///gI" | sort
+            exit
+            ;;
+        -p)
+            echo "${__AKS_PROFILES_FOLDER}"
+            exit
+            ;;
+        -k)
+            kill_autokey
+            exit
+            ;;
+        -c)
+            shift
+            if [[ $# > 0 ]]; then
+                create_profile "${1}"
+                exit 0
+            else
+                echo "What is the profile name?" > /dev/stderr
+                exit 1
+            fi
+            ;;
+        -r)
+            shift
+            if [[ $# > 0 ]]; then
+                remove_profile "${1}"
+                exit 0
+            else
+                echo "What is the profile name?" > /dev/stderr
+                exit 1
+            fi
+            ;;
+        *)
+            if [[ -z "${__switch_to_profile}" ]]; then
+                switch_profile "${1}"
+                exit
+            else
+                echo "Unknown option: $1" > /dev/stderr
+                exit 1
+            fi
+            ;;
+    esac
+done
+

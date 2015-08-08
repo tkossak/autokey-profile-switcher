@@ -1,0 +1,18 @@
+2015-08-08 15:42:22,164 INFO - root - Initialising application
+2015-08-08 15:42:22,169 INFO - root - Initialise global hotkeys
+2015-08-08 15:42:22,169 INFO - config-manager - Loading config from existing file: /home/kossak/.config/autokey/autokey.json
+2015-08-08 15:42:22,171 INFO - config-manager - Configuration changed - rebuilding in-memory structures
+2015-08-08 15:42:22,171 INFO - config-manager - Successfully loaded configuration
+2015-08-08 15:42:22,171 INFO - service - Starting service
+2015-08-08 15:42:22,231 INFO - interface - XRecord interface thread starting
+2015-08-08 15:42:22,232 INFO - service - Service now marked as running
+2015-08-08 15:42:22,255 INFO - root - Entering main()
+2015-08-08 16:55:01,457 INFO - root - Initialising application
+2015-08-08 16:55:01,465 INFO - root - Initialise global hotkeys
+2015-08-08 16:55:01,465 INFO - config-manager - Loading config from existing file: /home/kossak/.config/autokey/autokey.json
+2015-08-08 16:55:01,467 INFO - config-manager - Configuration changed - rebuilding in-memory structures
+2015-08-08 16:55:01,467 INFO - config-manager - Successfully loaded configuration
+2015-08-08 16:55:01,467 INFO - service - Starting service
+2015-08-08 16:55:01,527 INFO - interface - XRecord interface thread starting
+2015-08-08 16:55:01,528 INFO - service - Service now marked as running
+2015-08-08 16:55:01,552 INFO - root - Entering main()
