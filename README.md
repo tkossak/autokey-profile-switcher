@@ -8,7 +8,7 @@ Installing
 1. Make sure you have [AutoKey](https://code.google.com/p/autokey/) installed.
 1. Clone git repository and create link to `aks` somewhere in your $PATH for example:
 
-  ```ln -s /usr/local/bin/aks /FULL/PATH/TO/aks ```
+  ```ln -s /FULL/PATH/TO/aks /usr/local/bin/aks```
   
 1. run:
 
