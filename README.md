@@ -6,11 +6,11 @@ Script for switching "profiles" (=folders) for [AutoKey](https://code.google.com
 Installing
 ---
 1. Make sure you have [AutoKey](https://code.google.com/p/autokey/) installed.
-1. Clone git repository and create link to `aks` somewhere in your $PATH for example:
+2. Clone git repository and create link to `aks` somewhere in your $PATH for example:
 
   ```ln -s /FULL/PATH/TO/aks /usr/local/bin/aks```
   
-1. run:
+3. run:
 
   ```aks --install```
   
@@ -18,32 +18,37 @@ Installing
 
 Using
 ---
-* list all options
+* create new profile:
+
+  ```aks -c mplayer```
+
+* switch to new profile:
+  
+  ```aks mplayer```
+
+  You can modify your scripts in AutoKey now and they will be saved to your new profile "mplayer".
+
+* list all profiles
+
+  ```aks -l```
+  
+* get help and all options
 
   ```aks -h```
   
   Result:
 
   ```
-aks - change AutoKey profiles
-Usage:
-  aks [OPTIONS] [PROFILE_NAME]
+  aks - change AutoKey profiles
+  Usage:
+    aks [OPTIONS] [PROFILE_NAME]
 
-OPTIONS:
-  -h | --help : print this help
-  --install   : install AKS (create profile from current AutoKey folder, replace it with link)
-  -l          : list available profiles
-  -c <NAME>   : create new profile from default one
-  -r <NAME>   : remove profile
-  -k          : kill AutoKey process
-  -p          : print profiles directory path
+  OPTIONS:
+    -h | --help : print this help
+    --install   : install AKS (create profile from current AutoKey folder, replace it with link)
+    -l          : list available profiles
+    -c <NAME>   : create new profile from default one
+    -r <NAME>   : remove profile
+    -k          : kill AutoKey process
+    -p          : print profiles directory path
   ```
-* create new profile:
-
-  ```aks -c new_profile_name```
-
-* switch AutoKey to new profile:
-
-  ```aks new_profile_name```
-
-  Now you can modify your scripts in AutoKey and they will be saved to your "new_profile_name".
