@@ -1,6 +1,8 @@
 AutoKey-profile-switcher
 ========================
 
+[![GuardRails badge](https://badges.production.guardrails.io/tkossak/autokey-profile-switcher.svg)](https://www.guardrails.io)
+
 Script for switching "profiles" (=folders) for [AutoKey](https://code.google.com/p/autokey/). It works by changing the autokey folder (link) to required profile.
 
 Installing
